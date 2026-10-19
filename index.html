@@ -17,9 +17,8 @@
         </div>
         <span class="brand-name">핏센스</span>
       </div>
-      <div class="header-right" id="header-user-area" onclick="openAuthModal()">
-        <div class="profile-avatar" id="avatar-text">로그인</div>
-        <span class="user-dropdown" id="user-name-text">로그인 / 가입</span>
+      <div class="header-right" id="header-auth-area">
+        <button class="auth-btn" onclick="openModal('modal-auth')">로그인 / 회원가입</button>
       </div>
     </header>
 
@@ -30,7 +29,7 @@
       <section id="page-home" class="page-section active">
         <div class="wire-container">
           <div class="banner-card">
-            <h2>입어보지 않아도,<br>내 옷과 딱 맞는 사이즈</h2>
+            <h2>입어보지 않아도,<br>내 옷과 딱 맞는 핏센스</h2>
             <div class="skeleton-lines">
               <div class="sk-line w-80"></div>
               <div class="sk-line w-60"></div>
@@ -41,27 +40,27 @@
 
           <div class="section-title">어떤 옷의 사이즈가 궁금한가요?</div>
           <div class="category-grid">
-            <div class="cat-card" onclick="selectCategory('top')">
+            <div class="cat-card" onclick="selectCategory('상의')">
               <div class="wire-x-box"></div>
               <span>상의</span>
             </div>
-            <div class="cat-card" onclick="selectCategory('bottom')">
+            <div class="cat-card" onclick="selectCategory('하의')">
               <div class="wire-x-box"></div>
               <span>하의</span>
             </div>
-            <div class="cat-card" onclick="selectCategory('dress')">
+            <div class="cat-card" onclick="selectCategory('원피스')">
               <div class="wire-x-box"></div>
               <span>원피스</span>
             </div>
-            <div class="cat-card" onclick="selectCategory('outer')">
+            <div class="cat-card" onclick="selectCategory('아우터')">
               <div class="wire-x-box"></div>
               <span>아우터</span>
             </div>
-            <div class="cat-card" onclick="selectCategory('hat')">
+            <div class="cat-card" onclick="selectCategory('모자')">
               <div class="wire-x-box"></div>
               <span>모자</span>
             </div>
-            <div class="cat-card" onclick="selectCategory('shoes')">
+            <div class="cat-card" onclick="selectCategory('신발')">
               <div class="wire-x-box"></div>
               <span>신발</span>
             </div>
@@ -70,17 +69,17 @@
           <div class="section-title">이렇게 사용해요</div>
           <div class="steps-list">
             <div class="step-card">
-              <h4>1 신체 사이즈 입력</h4>
+              <h4>1. 신체 사이즈 입력</h4>
               <div class="sk-line w-100"></div>
               <div class="sk-line w-80"></div>
             </div>
             <div class="step-card">
-              <h4>2 옷 사진 및 카테고리 등록</h4>
+              <h4>2. 옷 사진 및 정보 입력</h4>
               <div class="sk-line w-100"></div>
               <div class="sk-line w-60"></div>
             </div>
             <div class="step-card">
-              <h4>3 마이페이지에서 분석 결과 확인</h4>
+              <h4>3. 마이페이지에서 분석 결과 확인</h4>
               <div class="sk-line w-100"></div>
               <div class="sk-line w-70"></div>
             </div>
@@ -88,13 +87,12 @@
         </div>
       </section>
 
-      <!-- 2. 사이즈 입력 (1 신체 사이즈가 먼저 등장) -->
+      <!-- 2. 사이즈 입력 페이지 -->
       <section id="page-size-input" class="page-section">
-        <!-- <- 홈 버튼 제거됨 -->
-
+        <!--상단 홈 버튼 제거됨 -->
         <div class="step-tabs">
-          <button id="step-tab-1" class="step-tab active" onclick="switchInputStep(1)">1 신체 사이즈</button>
-          <button id="step-tab-2" class="step-tab" onclick="switchInputStep(2)">2 옷</button>
+          <button id="step-tab-1" class="step-tab active" onclick="switchInputStep(1)">1. 신체 사이즈</button>
+          <button id="step-tab-2" class="step-tab" onclick="switchInputStep(2)">2. 옷 입력</button>
         </div>
 
         <!-- 1단계: 기본 신체 사이즈 -->
@@ -119,14 +117,14 @@
             <div class="form-field">
               <label>키</label>
               <div class="unit-input">
-                <input type="text" id="input-height" value="160" oninput="validateNumberInput(this)">
+                <input type="text" id="input-height" value="160" oninput="sanitizeNumericInput(this)">
                 <span>cm</span>
               </div>
             </div>
             <div class="form-field">
               <label>몸무게</label>
               <div class="unit-input">
-                <input type="text" id="input-weight" value="52" oninput="validateNumberInput(this)">
+                <input type="text" id="input-weight" value="52" oninput="sanitizeNumericInput(this)">
                 <span>kg</span>
               </div>
             </div>
@@ -145,220 +143,231 @@
           <p class="sub-info">키·몸무게 외에는 아는 항목만 입력하세요</p>
 
           <div class="form-row">
-            <div class="form-field"><label>키</label><div class="unit-input"><input type="text" value="160" oninput="validateNumberInput(this)"><span>cm</span></div></div>
-            <div class="form-field"><label>몸무게</label><div class="unit-input"><input type="text" value="52" oninput="validateNumberInput(this)"><span>cm</span></div></div>
+            <div class="form-field">
+              <label>키</label>
+              <div class="unit-input">
+                <input type="text" value="160" oninput="sanitizeNumericInput(this)">
+                <span>cm</span>
+              </div>
+            </div>
+            <div class="form-field">
+              <label>몸무게</label>
+              <div class="unit-input">
+                <input type="text" value="52" oninput="sanitizeNumericInput(this)">
+                <span>kg</span>
+              </div>
+            </div>
           </div>
 
           <div class="field-section-title">상체</div>
-          <div class="form-field"><label>어깨너비</label><div class="unit-input"><input type="text" value="38" oninput="validateNumberInput(this)"><span>cm</span></div></div>
-          <div class="form-field"><label>팔길이</label><div class="unit-input"><input type="text" value="54" oninput="validateNumberInput(this)"><span>cm</span></div></div>
-          <div class="form-field"><label>가슴둘레</label><div class="unit-input"><input type="text" value="82" oninput="validateNumberInput(this)"><span>cm</span></div></div>
+          <div class="form-field">
+            <label>어깨너비</label>
+            <div class="unit-input">
+              <input type="text" value="38" oninput="sanitizeNumericInput(this)">
+              <span>cm</span>
+            </div>
+          </div>
+          <div class="form-field">
+            <label>팔길이</label>
+            <div class="unit-input">
+              <input type="text" value="54" oninput="sanitizeNumericInput(this)">
+              <span>cm</span>
+            </div>
+          </div>
+          <div class="form-field">
+            <label>가슴둘레</label>
+            <div class="unit-input">
+              <input type="text" value="82" oninput="sanitizeNumericInput(this)">
+              <span>cm</span>
+            </div>
+          </div>
 
           <div class="field-section-title">하체</div>
-          <div class="form-field"><label>허리둘레</label><div class="unit-input"><input type="text" value="64" oninput="validateNumberInput(this)"><span>cm</span></div></div>
-          <div class="form-field"><label>힙둘레</label><div class="unit-input"><input type="text" value="92" oninput="validateNumberInput(this)"><span>cm</span></div></div>
-          <div class="form-field"><label>다리 안쪽 길이</label><div class="unit-input"><input type="text" placeholder="" oninput="validateNumberInput(this)"><span>cm</span></div></div>
-
-          <div class="guide-banner-card mt-15">
-            <div class="wire-x-box small-square"></div>
-            <span>측정 위치 안내 보기 ›</span>
+          <div class="form-field">
+            <label>허리둘레</label>
+            <div class="unit-input">
+              <input type="text" value="64" oninput="sanitizeNumericInput(this)">
+              <span>cm</span>
+            </div>
+          </div>
+          <div class="form-field">
+            <label>힙둘레</label>
+            <div class="unit-input">
+              <input type="text" value="92" oninput="sanitizeNumericInput(this)">
+              <span>cm</span>
+            </div>
+          </div>
+          <div class="form-field">
+            <label>다리 안쪽 길이</label>
+            <div class="unit-input">
+              <input type="text" placeholder="" oninput="sanitizeNumericInput(this)">
+              <span>cm</span>
+            </div>
           </div>
 
           <button class="btn btn-dark full-btn mt-20" onclick="switchInputStep(2)">다음: 옷 입력</button>
         </div>
 
-        <!-- 2단계: 옷 입력 (사진 업로드 -> 카테고리 및 정보 입력 방식) -->
+        <!-- 2단계: 옷 입력 -->
         <div id="step-2-cloth" class="input-step-content">
-          <h3>분석할 옷의 사진을 등록해주세요</h3>
-          <p class="sub-info mb-10">사진 등록 후 카테고리와 사이즈 라벨을 선택할 수 있습니다.</p>
-
-          <input type="file" id="cloth-file-input" hidden accept="image/*" onchange="handleClothPhotoAdd(event)">
+          <h3>분석할 옷 정보를 등록해주세요</h3>
           
-          <div id="cloth-items-container">
-            <!-- 업로드된 사진 항목들이 dynamic하게 추가됨 -->
+          <div class="field-section-title">사진 업로드</div>
+          <input type="file" id="cloth-file-input" hidden accept="image/*" multiple onchange="handleClothPhotos(event)">
+          <button class="dashed-add-btn" onclick="document.getElementById('cloth-file-input').click()">+ 옷 관련 사진 선택 (여러 장 가능)</button>
+
+          <div id="cloth-items-container" class="cloth-items-list mt-10">
+            <!-- 등록된 사진 카드들이 동적으로 생성됨 -->
           </div>
 
-          <button class="dashed-add-btn" onclick="document.getElementById('cloth-file-input').click()">+ 옷 사진·캡처 추가하기</button>
-
-          <div class="field-section-title mt-20">상세 실측 (선택) ▾</div>
+          <div class="field-section-title">상세 실측 (선택)</div>
           <div class="form-row">
-            <div class="form-field"><label>총장</label><div class="unit-input"><input type="text" value="98" oninput="validateNumberInput(this)"><span>cm</span></div></div>
-            <div class="form-field"><label>어깨</label><div class="unit-input"><input type="text" placeholder="" oninput="validateNumberInput(this)"><span>cm</span></div></div>
+            <div class="form-field">
+              <label>총장</label>
+              <div class="unit-input">
+                <input type="text" value="98" oninput="sanitizeNumericInput(this)">
+                <span>cm</span>
+              </div>
+            </div>
+            <div class="form-field">
+              <label>어깨</label>
+              <div class="unit-input">
+                <input type="text" placeholder="" oninput="sanitizeNumericInput(this)">
+                <span>cm</span>
+              </div>
+            </div>
           </div>
           <div class="form-row">
-            <div class="form-field"><label>가슴단면</label><div class="unit-input"><input type="text" placeholder="" oninput="validateNumberInput(this)"><span>cm</span></div></div>
-            <div class="form-field"><label>소매길이</label><div class="unit-input"><input type="text" placeholder="" oninput="validateNumberInput(this)"><span>cm</span></div></div>
+            <div class="form-field">
+              <label>가슴단면</label>
+              <div class="unit-input">
+                <input type="text" placeholder="" oninput="sanitizeNumericInput(this)">
+                <span>cm</span>
+              </div>
+            </div>
+            <div class="form-field">
+              <label>소매길이</label>
+              <div class="unit-input">
+                <input type="text" placeholder="" oninput="sanitizeNumericInput(this)">
+                <span>cm</span>
+              </div>
+            </div>
           </div>
 
           <button class="btn btn-dark full-btn mt-20" onclick="runAnalysisAndGoToMypage()">분석하기</button>
         </div>
       </section>
 
-      <!-- 3. 마이페이지 (분석 결과를 수신하여 보여줌) -->
+      <!-- 3. 마이페이지 (분석 결과 탭 통합) -->
       <section id="page-mypage" class="page-section">
         <div class="mypage-top-title">
           <div>
             <h3>기록을 쌓고, 내 핏을 더 잘 알아가요</h3>
-            <p class="sub-text">분석 결과를 확인하고 실제 착용감을 남겨주세요.</p>
+            <p class="sub-text">분석 결과를 확인하고 내 신체 정보를 관리하세요.</p>
           </div>
           <button class="btn btn-dark btn-sm" onclick="navigateTo('size-input')">새 분석 시작 +</button>
         </div>
 
         <div class="sub-tabs">
-          <button id="mypage-subtab-1" class="sub-tab active" onclick="switchMypageTab('record')">분석 기록·착용 피드백</button>
-          <button id="mypage-subtab-2" class="sub-tab" onclick="switchMypageTab('profile')">내 정보·개인정보</button>
+          <button id="mypage-subtab-1" class="sub-tab active" onclick="switchMypageTab('analysis')">최근 분석 결과</button>
+          <button id="mypage-subtab-2" class="sub-tab" onclick="switchMypageTab('record')">분석 기록·피드백</button>
+          <button id="mypage-subtab-3" class="sub-tab" onclick="switchMypageTab('profile')">내 정보</button>
         </div>
 
-        <!-- 탭 A: 분석 기록 및 피드백 -->
-        <div id="mypage-tab-record" class="mypage-tab-content active">
+        <!-- 탭 1: 실시간 분석 결과 -->
+        <div id="mypage-tab-analysis" class="mypage-tab-content active">
+          <div id="latest-analysis-view">
+            <div class="wire-card text-center">
+              <p class="sub-text">추천 사이즈 <span class="highlight-lg" id="res-rec-size">L</span> (<span id="res-cat-text">상의</span> · <span id="res-label-text">L</span> 기준)</p>
+
+              <div class="size-bar-chart">
+                <div class="chart-col"><div class="bar" style="height: 20%;"></div><span>S 20%</span></div>
+                <div class="chart-col"><div class="bar" style="height: 50%;"></div><span>M 50%</span></div>
+                <div class="chart-col active"><div class="bar" style="height: 90%;"></div><span>L 90%</span></div>
+                <div class="chart-col"><div class="bar" style="height: 40%;"></div><span>XL 40%</span></div>
+              </div>
+            </div>
+
+            <div class="wire-card">
+              <h4>핏 시각화</h4>
+              <div class="toggle-group">
+                <button class="toggle-btn active">정면</button>
+                <button class="toggle-btn">측면</button>
+                <button class="toggle-btn dashed">3D 회전 ↺</button>
+              </div>
+              <div class="fit-canvas">
+                <div class="body-wireframe-shape"></div>
+                <div class="cloth-dashed-shape"></div>
+                <p class="canvas-note">예측 시각화 · 회색 신체 모형 / 점선 옷 윤곽</p>
+              </div>
+            </div>
+
+            <div class="wire-card">
+              <h4>부위별 차이</h4>
+              <table class="wire-table">
+                <thead>
+                  <tr><th>부위</th><th>신체</th><th>옷</th><th>차이</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>어깨</td><td>38</td><td>40</td><td class="bold">+2cm</td></tr>
+                  <tr><td>가슴</td><td>82</td><td>88</td><td class="bold">+6cm</td></tr>
+                  <tr><td>허리</td><td>64</td><td>70</td><td class="bold">+6cm</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="btn-row mt-10">
+              <button class="btn btn-outline flex-1" onclick="navigateTo('size-input')">입력 수정</button>
+              <button class="btn btn-dark flex-1" onclick="alert('마이페이지 기록에 저장되었습니다.')">저장하기</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 탭 2: 지난 분석 기록 -->
+        <div id="mypage-tab-record" class="mypage-tab-content">
           <div class="summary-cards-3">
-            <div class="sum-box"><span>저장한 분석</span><strong id="stat-count">3건</strong></div>
+            <div class="sum-box"><span>저장한 분석</span><strong>3건</strong></div>
             <div class="sum-box"><span>완료한 피드백</span><strong>1건</strong></div>
             <div class="sum-box"><span>현재 선호 핏</span><strong>기본 핏</strong></div>
           </div>
 
           <div class="mypage-section-block">
-            <h4>분석 기록</h4>
-            
-            <div id="record-list-container">
-              <!-- 분석 기록 카드들 -->
-              <div class="record-card">
-                <div class="rec-head">
-                  <span>2026.10.10 · 최신</span>
-                  <span class="dots">···</span>
-                </div>
-                <div class="rec-body">
-                  <div class="wire-x-box square-50"></div>
-                  <div>
-                    <h5>유니클로 옥스포드 셔츠</h5>
-                    <div class="badge-group">
-                      <span class="badge">추천: L · 정핏</span>
-                      <span class="badge active">피드백 작성 중</span>
-                    </div>
-                    <p class="sub-info">키 160 cm · 가슴 둘레 82 cm · 여유 +6 cm</p>
-                  </div>
-                </div>
-                <div class="rec-actions">
-                  <button class="link-action" onclick="openSavedAnalysisModal('유니클로 옥스포드 셔츠', 'L')">분석 결과 보기 ↗</button>
-                  <button class="link-action" onclick="navigateTo('size-input')">입력값 재사용</button>
-                  <button class="link-action text-del" onclick="deleteRecord(this)">삭제</button>
-                </div>
+            <h4>분석 히스토리</h4>
+            <div class="record-card">
+              <div class="rec-head">
+                <span>2026.10.19</span>
+                <span class="dots">···</span>
               </div>
-
-              <div class="record-card">
-                <div class="rec-head"><span>2026.10.04</span><span class="dots">···</span></div>
-                <div class="rec-body">
-                  <div class="wire-x-box square-50"></div>
-                  <div>
-                    <h5>무인양품 워시드 셔츠</h5>
-                    <div class="badge-group"><span class="badge">추천: M · 정핏</span><span class="badge">피드백 완료</span></div>
+              <div class="rec-body">
+                <div class="wire-x-box square-50"></div>
+                <div>
+                  <h5>최근 분석 상품</h5>
+                  <div class="badge-group">
+                    <span class="badge">L · 정핏</span>
+                    <span class="badge active">피드백 대기</span>
                   </div>
-                </div>
-                <div class="rec-actions">
-                  <button class="link-action" onclick="openSavedAnalysisModal('무인양품 워시드 셔츠', 'M')">분석 결과 보기 ↗</button>
-                  <button class="link-action text-del" onclick="deleteRecord(this)">삭제</button>
+                  <p class="sub-info">키 160 cm · 가슴 둘레 82 cm</p>
                 </div>
               </div>
             </div>
-          </div>
-
-          <div class="wire-card mt-15">
-            <h4>착용 피드백</h4>
-            <p class="sub-info mb-10">선택한 분석의 실제 착용감을 기록해요.</p>
-
-            <div class="target-select-box">
-              <div class="wire-x-box square-30"></div>
-              <span><strong id="feedback-target-title">유니클로 옥스포드 셔츠 · L</strong></span>
-              <button class="link-btn">기록 변경 ▾</button>
-            </div>
-
-            <div class="field-section-title">본인이 입은 옷 사진</div>
-            <div class="wire-x-box photo-upload-sm">
-              <span>📷 사진 업로드</span>
-            </div>
-
-            <div class="field-section-title">사진 소스</div>
-            <div class="radio-options">
-              <label class="radio-box active"><input type="radio" checked name="src"> 직접 촬영</label>
-              <label class="radio-box"><input type="radio" name="src"> 사진 업로드</label>
-              <label class="radio-box"><input type="radio" name="src"> 인터넷에서 찾기</label>
-            </div>
-
-            <div class="field-section-title">실제로 입은 사이즈</div>
-            <select class="select-box full-width">
-              <option>XXS</option>
-              <option>XS</option>
-              <option>S</option>
-              <option>M</option>
-              <option selected>L</option>
-              <option>XL</option>
-              <option>XXL</option>
-            </select>
-
-            <div class="field-section-title">전체 핏</div>
-            <div class="chip-group">
-              <button class="chip" onclick="selectChip(this)">작음</button>
-              <button class="chip active" onclick="selectChip(this)">정핏 ✓</button>
-              <button class="chip" onclick="selectChip(this)">여유</button>
-            </div>
-
-            <div class="field-section-title">부위별 착용감</div>
-            <div class="fit-grid-eval">
-              <div>가슴</div><button class="chip-sm" onclick="selectSmChip(this)">작음</button><button class="chip-sm active" onclick="selectSmChip(this)">적당</button><button class="chip-sm" onclick="selectSmChip(this)">여유</button>
-              <div>어깨</div><button class="chip-sm active" onclick="selectSmChip(this)">작음</button><button class="chip-sm" onclick="selectSmChip(this)">적당</button><button class="chip-sm" onclick="selectSmChip(this)">여유</button>
-              <div>소매</div><button class="chip-sm" onclick="selectSmChip(this)">작음</button><button class="chip-sm active" onclick="selectSmChip(this)">적당</button><button class="chip-sm" onclick="selectSmChip(this)">여유</button>
-            </div>
-
-            <div class="field-section-title">착용 메모</div>
-            <textarea class="memo-area" placeholder="가슴과 기장은 예상대로예요. 팔을 앞으로 뻗을 때 어깨가 조금 당겨요."></textarea>
-
-            <button class="btn btn-dark full-btn mt-15" onclick="alert('피드백 저장 완료')">피드백 저장</button>
           </div>
         </div>
 
-        <!-- 탭 B: 내 정보 및 개인정보 -->
+        <!-- 탭 3: 내 정보 -->
         <div id="mypage-tab-profile" class="mypage-tab-content">
           <div class="wire-card">
             <h4>내 핏 프로필</h4>
-            <p class="sub-info mb-10">신체 둘레는 단면 너비가 아닌 몸을 한 바퀴 재낸 값입니다.</p>
-
             <div class="form-row">
-              <div class="form-field"><label>키</label><div class="unit-input"><input type="text" value="160" oninput="validateNumberInput(this)"><span>cm</span></div></div>
-              <div class="form-field"><label>가슴 둘레</label><div class="unit-input"><input type="text" value="82" oninput="validateNumberInput(this)"><span>cm</span></div></div>
+              <div class="form-field">
+                <label>키</label>
+                <div class="unit-input"><input type="text" value="160" oninput="sanitizeNumericInput(this)"><span>cm</span></div>
+              </div>
+              <div class="form-field">
+                <label>몸무게</label>
+                <div class="unit-input"><input type="text" value="52" oninput="sanitizeNumericInput(this)"><span>kg</span></div>
+              </div>
             </div>
-            <div class="form-row">
-              <div class="form-field"><label>허리 둘레</label><div class="unit-input"><input type="text" value="64" oninput="validateNumberInput(this)"><span>cm</span></div></div>
-              <div class="form-field"><label>엉덩이 둘레</label><div class="unit-input"><input type="text" value="92" oninput="validateNumberInput(this)"><span>cm</span></div></div>
-            </div>
-
-            <div class="field-section-title">선호 핏</div>
-            <div class="fit-pref-selector">
-              <div class="pref-box" onclick="selectPref(this)"><strong>슬림 핏</strong><span>몸의 라인에 가깝게</span></div>
-              <div class="pref-box active" onclick="selectPref(this)"><strong>기본 핏 ✓</strong><span>적당한 여유로 자연스럽게</span></div>
-              <div class="pref-box" onclick="selectPref(this)"><strong>여유 핏</strong><span>넉넉하고 편안하게</span></div>
-            </div>
-
             <button class="btn btn-dark full-btn mt-15" onclick="alert('프로필 저장 완료')">프로필 저장</button>
-          </div>
-
-          <div class="wire-card mt-15">
-            <h4>사진·데이터 삭제</h4>
-            
-            <div class="delete-row">
-              <div>
-                <strong>저장된 사진</strong>
-                <p class="sub-info">업로드한 원본 사진 삭제</p>
-              </div>
-              <button class="btn btn-outline btn-sm" onclick="alert('저장된 사진이 삭제되었습니다.')">사진 삭제</button>
-            </div>
-
-            <div class="delete-row mt-10">
-              <div>
-                <strong>신체 치수·핏 프로필</strong>
-                <p class="sub-info">키, 신체 치수와 선호 핏 초기화</p>
-              </div>
-              <button class="btn btn-outline btn-sm" onclick="alert('프로필이 초기화되었습니다.')">프로필 초기화</button>
-            </div>
           </div>
         </div>
       </section>
@@ -382,7 +391,7 @@
 
     </main>
 
-    <!-- 모바일 하단 탭 바 (분석 결과 탭 제거) -->
+    <!-- 모바일 하단 탭 바 -->
     <nav class="bottom-nav">
       <button class="nav-item active" data-target="home" onclick="navigateTo('home')">
         <div class="nav-wire-icon"></div>
@@ -403,117 +412,58 @@
     </nav>
   </div>
 
-  <!-- 모달 1: 분석 상세 결과 (마이페이지에서 호출됨) -->
-  <div id="modal-saved-analysis" class="modal-overlay">
-    <div class="modal-card">
-      <button class="modal-close-btn" onclick="closeModal('modal-saved-analysis')">✕</button>
-      <h3>분석 결과 상세</h3>
-      <p class="sub-info mb-10" id="modal-analysis-title">원피스 · L · 정핏 기준</p>
-
-      <div class="wire-card text-center">
-        <p class="sub-text">추천 사이즈 <span class="highlight-lg" id="modal-rec-size">L</span></p>
-
-        <div class="size-bar-chart">
-          <div class="chart-col"><div class="bar" style="height: 20%;"></div><span>XXS</span></div>
-          <div class="chart-col"><div class="bar" style="height: 35%;"></div><span>XS</span></div>
-          <div class="chart-col"><div class="bar" style="height: 50%;"></div><span>S</span></div>
-          <div class="chart-col"><div class="bar" style="height: 65%;"></div><span>M</span></div>
-          <div class="chart-col active"><div class="bar" style="height: 88%;"></div><span>L</span></div>
-          <div class="chart-col"><div class="bar" style="height: 54%;"></div><span>XL</span></div>
-          <div class="chart-col"><div class="bar" style="height: 30%;"></div><span>XXL</span></div>
-        </div>
-      </div>
-
-      <div class="wire-card">
-        <h4>핏 시각화</h4>
-        <div class="fit-canvas">
-          <div class="body-wireframe-shape"></div>
-          <div class="cloth-dashed-shape"></div>
-          <p class="canvas-note">예측 시각화 · 회색 신체 모형 / 점선 옷 윤곽</p>
-        </div>
-      </div>
-
-      <h4>부위별 차이</h4>
-      <table class="wire-table">
-        <thead>
-          <tr><th>부위</th><th>신체</th><th>옷</th><th>차이</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>어깨</td><td>38</td><td>40</td><td class="bold">+2cm</td></tr>
-          <tr><td>가슴</td><td>82</td><td>88</td><td class="bold">+6cm</td></tr>
-          <tr><td>허리</td><td>64</td><td>70</td><td class="bold">+6cm</td></tr>
-        </tbody>
-      </table>
-
-      <div class="btn-row mt-15">
-        <button class="btn btn-dark flex-1" onclick="closeModal('modal-saved-analysis')">확인</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 모달 2: 저장 브랜드 -->
-  <div id="modal-saved-brand" class="modal-overlay">
-    <div class="modal-card">
-      <button class="modal-close-btn" onclick="closeModal('modal-saved-brand')">✕</button>
-      <h3>브랜드 정보</h3>
-
-      <div class="wire-card mt-10">
-        <h3>브랜드 A</h3>
-        <p>추천 사이즈 <strong>L</strong> · 원피스</p>
-      </div>
-
-      <div class="wire-card">
-        <h5>사이즈 경향</h5>
-        <h4>기장 긴 편 · 허리 여유</h4>
-        <p class="sub-info">적합도 88% · 표본 214개</p>
-      </div>
-
-      <div class="btn-row mt-15">
-        <button class="btn btn-dark full-btn" onclick="closeModal('modal-saved-brand')">확인</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 모달 3: 로그인 / 회원가입 모달 -->
+  <!-- 모달: 로그인 / 회원가입 -->
   <div id="modal-auth" class="modal-overlay">
     <div class="modal-card">
       <button class="modal-close-btn" onclick="closeModal('modal-auth')">✕</button>
       
       <div class="auth-tabs">
-        <button id="tab-login" class="auth-tab active" onclick="switchAuthTab('login')">로그인</button>
-        <button id="tab-signup" class="auth-tab" onclick="switchAuthTab('signup')">회원가입</button>
+        <button id="tab-btn-login" class="auth-tab-btn active" onclick="switchAuthTab('login')">로그인</button>
+        <button id="tab-btn-signup" class="auth-tab-btn" onclick="switchAuthTab('signup')">회원가입</button>
       </div>
 
-      <!-- 로그인 Form -->
-      <div id="form-login" class="auth-form active">
-        <div class="form-field mb-10">
-          <label>아이디 또는 이메일</label>
-          <input type="text" id="login-id" class="full-input" placeholder="id@example.com">
+      <!-- 로그인 폼 -->
+      <form id="form-login" class="auth-form active" onsubmit="handleLogin(event)">
+        <div class="input-group">
+          <label>아이디 (이메일)</label>
+          <input type="email" id="login-email" required placeholder="example@fit-sense.com">
         </div>
-        <div class="form-field mb-15">
+        <div class="input-group">
           <label>비밀번호</label>
-          <input type="password" id="login-pw" class="full-input" placeholder="비밀번호 입력">
+          <input type="password" id="login-password" required placeholder="비밀번호 입력">
         </div>
-        <button class="btn btn-dark full-btn" onclick="handleLogin()">로그인</button>
-      </div>
+        <button type="submit" class="btn btn-dark full-btn mt-15">로그인</button>
+      </form>
 
-      <!-- 회원가입 Form -->
-      <div id="form-signup" class="auth-form">
-        <div class="form-field mb-10">
-          <label>이름 / 닉네임</label>
-          <input type="text" id="signup-name" class="full-input" placeholder="홍길동">
+      <!-- 회원가입 폼 -->
+      <form id="form-signup" class="auth-form" onsubmit="handleSignup(event)">
+        <div class="input-group">
+          <label>이름</label>
+          <input type="text" id="signup-name" required placeholder="홍길동">
         </div>
-        <div class="form-field mb-10">
-          <label>이메일</label>
-          <input type="email" id="signup-email" class="full-input" placeholder="id@example.com">
+        <div class="input-group">
+          <label>아이디 (이메일)</label>
+          <input type="email" id="signup-email" required placeholder="example@fit-sense.com">
         </div>
-        <div class="form-field mb-15">
+        <div class="input-group">
           <label>비밀번호</label>
-          <input type="password" id="signup-pw" class="full-input" placeholder="비밀번호 입력">
+          <input type="password" id="signup-password" required placeholder="비밀번호 입력">
         </div>
-        <button class="btn btn-dark full-btn" onclick="handleSignup()">가입하기</button>
-      </div>
+        <button type="submit" class="btn btn-dark full-btn mt-15">회원가입 완료</button>
+      </form>
+    </div>
+  </div>
 
+  <!-- 모달: 저장 브랜드 상세 -->
+  <div id="modal-saved-brand" class="modal-overlay">
+    <div class="modal-card">
+      <button class="modal-close-btn" onclick="closeModal('modal-saved-brand')">✕</button>
+      <h3>브랜드 상세 정보</h3>
+      <div class="wire-card mt-10">
+        <h3>브랜드 A</h3>
+        <p>추천 사이즈 <strong>L</strong></p>
+      </div>
+      <button class="btn btn-outline full-btn mt-15" onclick="closeModal('modal-saved-brand')">닫기</button>
     </div>
   </div>
 
