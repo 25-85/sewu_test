@@ -1,4 +1,4 @@
-/* 핏센스 모노톤 UI 스펙 */
+/* 핏센스 와이어프레임 - 흑백 모노톤 스타일링 */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -15,6 +15,7 @@ body {
   min-height: 100vh;
 }
 
+/* 모바일 아이폰 전용 프레임 */
 .mobile-wrapper {
   width: 100%;
   max-width: 430px;
@@ -29,6 +30,7 @@ body {
   box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
+/* 와이어프레임 핵심 엑스 박스 (X-Box) */
 .wire-x-box {
   border: 1px solid #222222;
   background-color: #f0f0f0;
@@ -63,9 +65,10 @@ body {
 
 .square-40 { width: 40px; height: 40px; flex-shrink: 0; }
 .square-50 { width: 50px; height: 50px; flex-shrink: 0; }
+.small-square { width: 24px; height: 24px; flex-shrink: 0; }
 .big-box { width: 100%; height: 180px; }
 
-/* 모바일 상단 헤더 */
+/* 헤더 */
 .app-header {
   height: 52px;
   border-bottom: 1px solid #222222;
@@ -106,7 +109,7 @@ body {
   font-weight: bold;
 }
 
-/* 메인 스크롤 영역 */
+/* 본문 영역 */
 .app-body {
   flex: 1;
   overflow-y: auto;
@@ -121,7 +124,7 @@ body {
   display: block;
 }
 
-/* 하단 탭 바 Navigation */
+/* 하단 탭바 Navigation */
 .bottom-nav {
   height: 56px;
   border-top: 1px solid #222222;
@@ -160,7 +163,7 @@ body {
   background-color: #222;
 }
 
-/* 카드 및 컨테이너 */
+/* 카드 UI */
 .wire-card, .banner-card {
   border: 1px solid #222222;
   border-radius: 6px;
@@ -221,7 +224,7 @@ body {
   height: 36px;
 }
 
-/* 버튼 스타일 */
+/* 버튼 */
 .btn {
   padding: 10px 14px;
   font-size: 13px;
@@ -304,7 +307,7 @@ body {
   margin: 12px 0 6px 0;
 }
 
-/* 탭 제어 */
+/* 탭 UI */
 .step-tabs, .sub-tabs {
   display: flex;
   gap: 4px;
@@ -334,7 +337,7 @@ body {
   display: block;
 }
 
-/* 동적 동시 옷 개별 카드 */
+/* 업로드된 동적 옷 카드 */
 .cloth-item-card {
   border: 1px solid #222;
   border-radius: 6px;
@@ -352,7 +355,7 @@ body {
 
 .cloth-img-preview {
   width: 100%;
-  height: 100px;
+  height: 120px;
   margin-bottom: 8px;
 }
 
@@ -364,6 +367,7 @@ body {
   font-weight: bold;
 }
 
+/* 칩 그룹 (XXS~XXL) */
 .chip-group {
   display: flex;
   flex-wrap: wrap;
@@ -445,7 +449,7 @@ body {
   text-align: left;
 }
 
-/* 로그인 / 회원가입 모달 */
+/* 모달 레이아웃 */
 .modal-overlay {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -529,11 +533,12 @@ body {
   outline: none;
 }
 
-/* 기타 공통 레이아웃 */
+/* 공통 유틸리티 */
 .text-center { text-align: center; }
 .sub-text, .sub-info { font-size: 11px; color: #666; }
 .highlight-lg { font-size: 20px; font-weight: bold; }
 .btn-row { display: flex; gap: 6px; }
+.grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .mt-10 { margin-top: 10px; }
 .mt-15 { margin-top: 15px; }
 .mt-20 { margin-top: 20px; }
@@ -549,6 +554,6 @@ body {
 .rec-head { display: flex; justify-content: space-between; font-size: 10px; color: #666; }
 .rec-body { display: flex; gap: 8px; margin-top: 6px; }
 .badge { font-size: 9px; border: 1px solid #222; padding: 1px 4px; border-radius: 3px; }
-.badge.active { background: #222; color: #fff; }
 .badge-group { display: flex; gap: 4px; margin: 4px 0; }
 .brand-item-row { display: flex; gap: 10px; align-items: center; }
+.guide-banner-card { border: 1px solid #222; padding: 8px; border-radius: 4px; display: flex; align-items: center; gap: 8px; font-size: 11px; }
