@@ -1,13 +1,12 @@
 /**
- * 핏센스 (FitSense) 앱 스크립트
+ * 핏센스 (FitSense) 메인 스크립트
  */
 
-// 글로벌 상태 변수
 let currentUser = null;
 let uploadedClothItems = [];
 const sizeLabels = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL'];
 
-// 페이지 전환
+// 페이지 라우팅
 function navigateTo(pageId) {
   const pages = document.querySelectorAll('.page-section');
   pages.forEach(p => p.classList.remove('active'));
@@ -17,7 +16,7 @@ function navigateTo(pageId) {
     targetPage.classList.add('active');
   }
 
-  // 하단 탭 바 활성화 상태 업데이트
+  // 하단 탭 바 비주얼 업데이트
   const navItems = document.querySelectorAll('.nav-item');
   navItems.forEach(item => {
     if (item.getAttribute('data-target') === pageId) {
@@ -31,13 +30,13 @@ function navigateTo(pageId) {
   if (appBody) appBody.scrollTop = 0;
 }
 
-// 홈 카테고리 클릭 시 (사이즈 입력으로 이동 및 1. 신체 사이즈 탭부터 시작)
+// 홈 카테고리 클릭 시 (사이즈 입력 진입 -> 1 신체 사이즈 단계 표시)
 function selectCategory(category) {
   navigateTo('size-input');
   switchInputStep(1);
 }
 
-// 사이즈 입력 단계Switch (1, 1-detail, 2)
+// 입력 단계 전환 (1. 신체 사이즈가 기본)
 function switchInputStep(step) {
   const step1Basic = document.getElementById('step-1-basic');
   const step1Detail = document.getElementById('step-1-detail');
@@ -63,20 +62,20 @@ function switchInputStep(step) {
   }
 }
 
-// 입력값 검증: 소수점(.)과 숫자 이외 입력 제한
+// 숫자와 소수점만 입력되도록 강제하는 함수
 function sanitizeNumericInput(inputElement) {
-  let value = inputElement.value;
-  // 숫자와 소수점 제외 필터링
-  value = value.replace(/[^0-9.]/g, '');
-  // 소수점이 여러 개 입력되는 것 방지
-  const parts = value.split('.');
+  let val = inputElement.value;
+  // 숫자와 . 을 제외한 문자 제거
+  val = val.replace(/[^0-9.]/g, '');
+  // 소수점 2개 이상 연속 입력 방지
+  const parts = val.split('.');
   if (parts.length > 2) {
-    value = parts[0] + '.' + parts.slice(1).join('');
+    val = parts[0] + '.' + parts.slice(1).join('');
   }
-  inputElement.value = value;
+  inputElement.value = val;
 }
 
-// 신체 사진 업로드 핸들러
+// 전신 사진 등록 시 미리보기 처리
 function handleBodyPhoto(event) {
   const file = event.target.files[0];
   if (file) {
@@ -92,7 +91,7 @@ function handleBodyPhoto(event) {
   }
 }
 
-// 옷 사진 여러 장 선택 처리
+// 옷 사진 다중 선택 시 카드로 렌더링
 function handleClothPhotos(event) {
   const files = Array.from(event.target.files);
   files.forEach(file => {
@@ -110,10 +109,10 @@ function handleClothPhotos(event) {
     };
     reader.readAsDataURL(file);
   });
-  event.target.value = ''; // 동일 파일 추가를 위해 리셋
+  event.target.value = '';
 }
 
-// 동적 옷 카드 목록 렌더링
+// 사진별 정보 설정 UI 카드 생성
 function renderClothItems() {
   const container = document.getElementById('cloth-items-container');
   container.innerHTML = '';
@@ -144,7 +143,7 @@ function renderClothItems() {
           </select>
         </div>
         <div class="form-field">
-          <label>사진 종류</label>
+          <label>사진 구분</label>
           <select class="select-box" onchange="updateItemPhotoType(${index}, this.value)">
             <option ${item.photoType === '착용 사진' ? 'selected' : ''}>착용 사진</option>
             <option ${item.photoType === '사이즈표 캡처' ? 'selected' : ''}>사이즈표 캡처</option>
@@ -152,7 +151,7 @@ function renderClothItems() {
         </div>
       </div>
 
-      <div class="field-section-title">사이즈 라벨 (XXS ~ XXL)</div>
+      <div class="field-section-title">사이즈 라벨</div>
       <div class="chip-group">
         ${sizeChips}
       </div>
@@ -172,7 +171,7 @@ function removeClothItem(index) {
   renderClothItems();
 }
 
-// 분석 진행 후 결과는 마이페이지 탭으로 이동 및 표시
+// 분석 실행 시 분석 결과 페이지를 거치지 않고 마이페이지 '분석 결과' 탭으로 바로 이동
 function runAnalysisAndGoToMypage() {
   if (uploadedClothItems.length > 0) {
     const lastItem = uploadedClothItems[uploadedClothItems.length - 1];
@@ -185,7 +184,7 @@ function runAnalysisAndGoToMypage() {
   switchMypageTab('analysis');
 }
 
-// 마이페이지 서브탭 Switch (analysis, record, profile)
+// 마이페이지 탭 Switch
 function switchMypageTab(tabName) {
   const tabAnalysis = document.getElementById('mypage-tab-analysis');
   const tabRecord = document.getElementById('mypage-tab-record');
@@ -210,7 +209,7 @@ function switchMypageTab(tabName) {
   }
 }
 
-// 모달 다이얼로그 제어
+// 모달 제어
 function openModal(modalId) {
   document.getElementById(modalId).classList.add('active');
 }
@@ -223,7 +222,7 @@ function openSavedBrandModal() {
   openModal('modal-saved-brand');
 }
 
-// 로그인/회원가입 탭 처리
+// 로그인/회원가입 탭
 function switchAuthTab(type) {
   const formLogin = document.getElementById('form-login');
   const formSignup = document.getElementById('form-signup');
@@ -243,7 +242,6 @@ function switchAuthTab(type) {
   }
 }
 
-// 로그인 및 회원가입 이벤트
 function handleLogin(e) {
   e.preventDefault();
   const email = document.getElementById('login-email').value;
@@ -251,7 +249,7 @@ function handleLogin(e) {
   currentUser = { email, name };
   updateAuthUI();
   closeModal('modal-auth');
-  alert(`${name}님, 환영합니다!`);
+  alert(`${name}님 환영합니다!`);
 }
 
 function handleSignup(e) {
@@ -261,7 +259,7 @@ function handleSignup(e) {
   currentUser = { email, name };
   updateAuthUI();
   closeModal('modal-auth');
-  alert(`회원가입이 완료되었습니다. ${name}님, 환영합니다!`);
+  alert(`회원가입이 완료되었습니다. ${name}님 환영합니다!`);
 }
 
 function updateAuthUI() {
@@ -269,6 +267,6 @@ function updateAuthUI() {
   if (currentUser) {
     authArea.innerHTML = `<span class="user-profile-tag">${currentUser.name}님 ∨</span>`;
   } else {
-    authArea.innerHTML = `<button class="auth-btn" onclick="openModal('modal-auth')">로그인 / 회원가입</button>`;
+    authArea.innerHTML = `<button class="auth-btn" onclick="openModal('modal-auth')">로그인/회원가입</button>`;
   }
 }
