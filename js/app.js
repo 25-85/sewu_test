@@ -232,8 +232,14 @@ function renderHome() {
   }
   const head = `<div class="row-between mb-10"><h3>내 체형에 맞는 브랜드 추천</h3><button class="link-btn" onclick="navigateTo('brand')">더보기 ›</button></div>`;
   if (!bodyOk()) {
+    const bi = (k, ph, u) => `<div class="form-field"><label>${ph[0]}</label><div class="unit-input"><input type="number" data-body="${k}" placeholder="${ph[1]}" value="${esc((S.prof && S.prof[k]) || '')}"><span>${u}</span></div></div>`;
     c.innerHTML = head + `<p class="sub-info mb-10">키와 몸무게를 입력하면 같은 체형의 후기를 바탕으로 브랜드를 추천해요.</p>
-      <div class="form-row"><div class="form-field"><label>키</label><div class="unit-input"><input type="number" id="home-h" placeholder="예: 160"><span>cm</span></div></div><div class="form-field"><label>몸무게</label><div class="unit-input"><input type="number" id="home-w" placeholder="예: 52"><span>kg</span></div></div></div>
+      <div class="form-row">${bi('h', ['키', '예: 160'], 'cm')}${bi('w', ['몸무게', '예: 52'], 'kg')}</div>
+      <div class="right-align mb-10"><button class="link-btn" onclick="toggleHomeDetail()">${homeDetail ? '상세 입력 접기 ▴' : '상세 입력 ›'}</button></div>
+      ${homeDetail ? `<div class="home-detail"><p class="sub-info mb-10">아는 항목만 입력하세요. 비워두면 키·몸무게로 추정해요.</p>
+        <div class="form-row">${bi('sho', ['어깨너비', '예: 38'], 'cm')}${bi('arm', ['팔길이', '예: 54'], 'cm')}</div>
+        <div class="form-row">${bi('chest', ['가슴둘레', '예: 82'], 'cm')}${bi('waist', ['허리둘레', '예: 64'], 'cm')}</div>
+        <div class="form-row">${bi('hip', ['힙둘레', '예: 92'], 'cm')}${bi('leg', ['다리 안쪽', ''], 'cm')}</div></div>` : ''}
       <button class="btn btn-dark full-btn" onclick="saveHomeBody()">추천 받기</button>`;
     return;
   }
@@ -242,10 +248,11 @@ function renderHome() {
     <div class="mt-10">${list.map((x, i) => miniRow(x.brand, x.size, `비슷한 체형 ${x.n}명 중 ${x.agree}명이 ${x.size} · ${tendency(x.brand)} · 적합도 ${Math.round(x.score * 100)}%`, i + 1)).join('') || '<p class="sub-info">추천할 데이터가 부족해요.</p>'}</div>`;
 }
 function setHomeSize(s) { homeSize = s; renderHome(); }
+let homeDetail = false;
+function toggleHomeDetail() { homeDetail = !homeDetail; renderHome(); }
 function saveHomeBody() {
-  const h = $('home-h').value, w = $('home-w').value;
-  if (!(+h >= 120 && +h <= 220 && +w >= 30 && +w <= 200)) return alert('키(120~220cm)와 몸무게(30~200kg)를 입력해 주세요.');
-  S.prof = Object.assign(S.prof || {}, { h, w }); save(); renderBodyInputs(); renderHome();
+  if (!bodyOk()) return alert('키(120~220cm)와 몸무게(30~200kg)를 입력해 주세요.');
+  save(); renderBodyInputs(); renderHome();
 }
 
 /* ================= 사이즈 측정 ================= */
@@ -356,18 +363,23 @@ function rowsAt(it, b, fit, i) {
   const m = it.measurements, rows = [];
   fit.parts.forEach(p => {
     const g = Math.round((m[p.k] + (i - fit.base) * p.step) * 10) / 10, bv = b[p.b], diff = Math.round((g - bv) * 10) / 10, d = diff - p.t[fit.kind][fit.pi];
-    rows.push({ name: p.l, body: bv, g, diff, verdict: d < -2.5 ? '타이트' : d > 3.5 ? '넉넉' : '적당' });
+    const vd = d < -2.5 ? '타이트' : d > 3.5 ? '널널' : '적당'; rows.push({ name: p.l, body: bv, g, diff, verdict: vd, ok: vd === '적당' });
   });
   const L = lengthOf(it, fit, i);
-  rows.push({ name: '총장', body: null, g: L, diff: null, verdict: posOf(it, fit, b, i) });
+  rows.push({ name: '총장', body: null, g: L, diff: null, verdict: posOf(it, fit, b, i), ok: null });
   if (m.sleeveLength != null) {
     const sl = Math.round((m.sleeveLength + (i - fit.base)) * 10) / 10, dd = sl - b.arm;
-    rows.push({ name: '소매길이', body: b.arm, g: sl, diff: Math.round(dd * 10) / 10, verdict: dd >= 2 ? '손등을 덮어요' : dd > -4 ? '손목 부근' : dd > -16 ? '팔꿈치~손목' : '반소매 길이' });
+    rows.push({ name: '소매길이', body: b.arm, g: sl, diff: Math.round(dd * 10) / 10, verdict: dd >= 2 ? '손등을 덮어요' : dd > -4 ? '손목 부근' : dd > -16 ? '팔꿈치~손목' : '반소매 길이', ok: dd < 2 && dd > -4 });
   }
   return rows;
 }
+function diffHtml(v) {
+  if (v == null) return '-';
+  const r = Math.round(v * 10) / 10;
+  return `<span class="dv ${r > 0 ? 'plus' : r < 0 ? 'minus' : ''}"><b class="sg">${r > 0 ? '+' : r < 0 ? '−' : '±'}</b>${Math.abs(r)}cm</span>`;
+}
 function resultTable(rows) {
-  return `<table class="wire-table result-table"><thead><tr><th>부위</th><th>신체</th><th>옷</th><th>차이</th><th>느낌</th></tr></thead><tbody>${rows.map(r => `<tr><td>${r.name}</td><td>${r.body == null ? '-' : r.body}</td><td>${r.g}</td><td class="bold">${r.diff == null ? '-' : sgn(r.diff)}</td><td>${r.verdict}</td></tr>`).join('')}</tbody></table>`;
+  return `<table class="wire-table result-table"><thead><tr><th>부위</th><th>신체</th><th>옷</th><th>차이</th><th>느낌</th></tr></thead><tbody>${rows.map(r => `<tr class="${r.ok === false ? 'row-bad' : ''}"><td>${r.name}</td><td>${r.body == null ? '-' : r.body}</td><td>${r.g}</td><td>${diffHtml(r.diff)}</td><td><span class="vpill ${r.ok === true ? 'ok' : r.ok === false ? 'bad' : ''}">${r.verdict}</span></td></tr>`).join('')}</tbody></table>`;
 }
 
 /* ---- 3. 결과: 핏 시각화 (SVG 인체 모형) ---- */
@@ -393,8 +405,10 @@ function fitSvg(it, b, fit, idx) {
   });
   svg += `<rect x="${cx - 4.5 * s}" y="${y0 + .11 * h * s}" width="${9 * s}" height="${shY - y0 - .11 * h * s}" fill="#f0f0f0" stroke="#888"/><circle cx="${cx}" cy="${y0 + .065 * h * s}" r="${.058 * h * s}" fill="#f0f0f0" stroke="#888"/><polygon points="${P(body)}" fill="#f0f0f0" stroke="#888" stroke-width="1"/>`;
   // 옷 윤곽 + 표시선
-  const ann = [], marks = [];
-  const mark = (y, wpx, label1, label2) => { marks.push(`<line x1="${cx - wpx / 2}" y1="${y}" x2="${cx + wpx / 2}" y2="${y}" stroke="#222" stroke-width="1.6"/>`); ann.push({ y, x: cx + wpx / 2, l1: label1, l2: label2 }); };
+  const ann = [], marks = [], GREEN = '#1a8f3c', RED = '#d32f2f';
+  const vrows = rowsAt(it, b, fit, idx), V = n => vrows.find(r => r.name.startsWith(n));
+  const colOf = r => (r && r.ok === true ? GREEN : r && r.ok === false ? RED : '#222');
+  const mark = (y, wpx, label1, r) => { const c = colOf(r); marks.push(`<line x1="${cx - wpx / 2}" y1="${y}" x2="${cx + wpx / 2}" y2="${y}" stroke="${c}" stroke-width="3"/>`); ann.push({ y, x: cx + wpx / 2, l1: label1, l2: r ? r.verdict : '', c }); };
   let hemY, lenTop;
   if (k === 'top' || k === 'outer' || k === 'dress') {
     const gc = m.chestCircumference + d * 4, gSh = m.shoulderWidth != null ? m.shoulderWidth + d : m.backWidth != null ? m.backWidth + d : b.sho + 2;
@@ -403,11 +417,11 @@ function fitSvg(it, b, fit, idx) {
     let R1 = [[cx + gSh * s / 2, shY], [cx + fw(gc) / 2, chY]];
     if (k === 'dress' && gW && hemY > waY + 6) R1.push([cx + fw(gW) / 2, waY], [cx + fw(gW * 1.35) / 2, hemY]); else R1.push([cx + fw(gW && k !== 'outer' && k !== 'top' ? gW : gc) / 2, hemY]);
     const poly = [mx(R1[0]), ...R1, ...R1.slice().reverse().map(mx)];
-    if (m.sleeveLength != null) { const sl = (m.sleeveLength + d) * s, w0 = gc / 8.5 * s; [-1, 1].forEach(sd => { svg += `<polygon points="${P(limbPoly(cx + sd * (gSh * s / 2 - 2), shY + 1, sd, 9, sl, w0, w0 * .78))}" fill="rgba(34,34,34,.07)" stroke="#222" stroke-dasharray="5 3"/>`; }); const sa = 9 * Math.PI / 180, ex = cx + gSh * s / 2 - 2 + Math.sin(sa) * sl, ey = shY + 1 + Math.cos(sa) * sl; ann.push({ y: ey, x: ex + 4, l1: `소매 ${Math.round(m.sleeveLength + d)}cm`, l2: `팔 대비 ${sgn(m.sleeveLength + d - b.arm)}` }); }
+    if (m.sleeveLength != null) { const sl = (m.sleeveLength + d) * s, w0 = gc / 8.5 * s; [-1, 1].forEach(sd => { svg += `<polygon points="${P(limbPoly(cx + sd * (gSh * s / 2 - 2), shY + 1, sd, 9, sl, w0, w0 * .78))}" fill="rgba(34,34,34,.07)" stroke="#222" stroke-dasharray="5 3"/>`; }); const sa = 9 * Math.PI / 180, ex = cx + gSh * s / 2 - 2 + Math.sin(sa) * sl, ey = shY + 1 + Math.cos(sa) * sl; const sr = V('소매'); ann.push({ y: ey, x: ex + 4, l1: `소매 ${sgn(m.sleeveLength + d - b.arm)}`, l2: sr ? sr.verdict : '', c: colOf(sr) }); }
     svg += `<polygon points="${P(poly)}" fill="rgba(34,34,34,.08)" stroke="#222" stroke-width="1.3" stroke-dasharray="5 3"/>`;
-    mark(shY, gSh * s, `어깨 ${sgn(gSh - b.sho)}`, '');
-    mark(chY, fw(gc), `가슴 ${sgn(gc - b.chest)}`, '둘레 ' + Math.round(gc) + 'cm');
-    if (gW && k === 'dress') mark(waY, fw(gW), `허리 ${sgn(gW - b.waist)}`, '');
+    mark(shY, gSh * s, `어깨 ${sgn(gSh - b.sho)}`, V('어깨'));
+    mark(chY, fw(gc), `가슴 ${sgn(gc - b.chest)}`, V('가슴'));
+    if (gW && k === 'dress') mark(waY, fw(gW), `허리 ${sgn(gW - b.waist)}`, V('허리'));
   } else {
     const gWc = m.waistCircumference + d * 4, gH = m.hipCircumference != null ? m.hipCircumference + d * 4 : null, len = lengthOf(it, fit, idx);
     const wy = waY + .015 * h * s; hemY = Math.min(btY - 2, wy + len * s); lenTop = wy;
@@ -417,13 +431,13 @@ function fitSvg(it, b, fit, idx) {
       const hw = (m.hemWidth + d * .7) * s, inn = cx + 2.5, xc = inn + hw / 2, o = inn + hw;
       const RR = [[cx + fw(gWc) / 2, wy], [cx + gH2, hiY], [o, hemY], [inn, hemY], [cx + 1.5, crY + 6]];
       poly = [mx(RR[0]), ...RR, ...RR.slice().reverse().map(mx)];
-      if (m.thighCircumference != null) { const ty = Y(.6), tx = cx + half * .9; ann.push({ y: ty, x: tx, l1: `허벅지 ${sgn(m.thighCircumference + d * 2.5 - b.thigh)}`, l2: '둘레 ' + Math.round(m.thighCircumference + d * 2.5) + 'cm' }); }
+      if (m.thighCircumference != null) { const ty = Y(.6), tx = cx + half * .9; const tr = V('허벅지'); ann.push({ y: ty, x: tx, l1: `허벅지 ${sgn(m.thighCircumference + d * 2.5 - b.thigh)}`, l2: tr ? tr.verdict : '', c: colOf(tr) }); }
     } else {
       const RR = [[cx + fw(gWc) / 2, wy], [cx + gH2, hiY], [cx + gH2 * 1.12, hemY]]; poly = [mx(RR[0]), ...RR, ...RR.slice().reverse().map(mx)];
     }
     svg += `<polygon points="${P(poly)}" fill="rgba(34,34,34,.08)" stroke="#222" stroke-width="1.3" stroke-dasharray="5 3"/>`;
-    mark(wy, fw(gWc), `허리 ${sgn(gWc - b.waist)}`, '둘레 ' + Math.round(gWc) + 'cm');
-    if (gH != null) mark(hiY, fw(gH), `엉덩이 ${sgn(gH - b.hip)}`, '둘레 ' + Math.round(gH) + 'cm');
+    mark(wy, fw(gWc), `허리 ${sgn(gWc - b.waist)}`, V('허리'));
+    if (gH != null) mark(hiY, fw(gH), `엉덩이 ${sgn(gH - b.hip)}`, V('엉덩이'));
   }
   // 총장 표시 (왼쪽 세로선) + 끝선
   const L = lengthOf(it, fit, idx), ym = (lenTop + hemY) / 2;
@@ -431,7 +445,7 @@ function fitSvg(it, b, fit, idx) {
   ann.push({ y: hemY, x: cx + 60, l1: `기장 ${posOf(it, fit, b, idx)}`, l2: '' });
   ann.sort((a, c) => a.y - c.y); let last = -99;
   ann.forEach(a => { a.ty = Math.max(a.y, last + (a.l2 ? 27 : 17)); last = a.ty; });
-  ann.forEach(a => { svg += `<line x1="${a.x}" y1="${a.y}" x2="214" y2="${a.ty}" stroke="#999" stroke-dasharray="2 2"/><circle cx="${a.x}" cy="${a.y}" r="2" fill="#222"/><text x="218" y="${a.ty + 3}" font-size="10" fill="#222"><tspan font-weight="700">${esc(a.l1)}</tspan>${a.l2 ? `<tspan x="218" dy="12" font-size="9" fill="#666">${esc(a.l2)}</tspan>` : ''}</text>`; });
+  ann.forEach(a => { svg += `<line x1="${a.x}" y1="${a.y}" x2="214" y2="${a.ty}" stroke="#999" stroke-dasharray="2 2"/><circle cx="${a.x}" cy="${a.y}" r="3" fill="${a.c || '#222'}"/><text x="218" y="${a.ty + 3}" font-size="10.5" fill="${a.c || '#222'}"><tspan font-weight="700">${esc(a.l1)}</tspan>${a.l2 ? `<tspan x="218" dy="12" font-size="10" font-weight="700" fill="${a.c || '#666'}">${esc(a.l2)}</tspan>` : ''}</text>`; });
   return `<svg class="fit-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="핏 시각화">${svg}${marks.join('')}</svg>`;
 }
 
@@ -462,7 +476,7 @@ function renderResult() {
     <p class="sub-info mt-10">막대를 누르면 그 사이즈로 볼 수 있어요 · 현재 보기 <strong>${SZ[R.view]}</strong></p>${note}</div>
     <div class="wire-card"><h4>선호 핏</h4><div class="seg-group mt-5">${PREFS.map(p => `<button class="seg-btn ${p === pref ? 'active' : ''}" onclick="setPref('${p}')">${p}</button>`).join('')}</div><p class="sub-info mt-5">${pref}: ${PREF_DESC[pref]}</p></div>
     <div class="wire-card"><div class="toggle-group"><button class="toggle-btn ${R.tab === 'viz' ? 'active' : ''}" onclick="setResultTab('viz')">핏 시각화</button><button class="toggle-btn ${R.tab === 'table' ? 'active' : ''}" onclick="setResultTab('table')">부위별 표</button></div>
-    ${R.tab === 'viz' ? `<div class="fit-canvas-svg">${fitSvg(it, b, fit, R.view)}</div><p class="canvas-note-static">회색 인체 모형(키 ${b.h}cm) · 점선 = ${SZ[R.view]} 사이즈 옷 윤곽 · 굵은 선 = 어깨·가슴 등 부위</p>` : `<h4 class="mt-10">${SZ[R.view]} 사이즈 부위별 비교</h4>${resultTable(rows)}<p class="sub-info mt-5">차이 = 옷 치수 − 내 신체 (둘레 기준). 신체 항목을 비워두면 키·몸무게로 추정한 값이에요.</p>`}</div>
+    ${R.tab === 'viz' ? `<div class="fit-canvas-svg">${fitSvg(it, b, fit, R.view)}</div><p class="canvas-note-static">회색 인체 모형(키 ${b.h}cm) · 점선 = ${SZ[R.view]} 사이즈 옷 윤곽</p><p class="legend"><span class="lg ok">● 적당</span><span class="lg bad">● 타이트 / 널널</span></p>` : `<h4 class="mt-10">${SZ[R.view]} 사이즈 부위별 비교</h4>${resultTable(rows)}<p class="sub-info mt-5">차이 = 옷 치수 − 내 신체 (둘레 기준). 신체 항목을 비워두면 키·몸무게로 추정한 값이에요.</p>`}</div>
     ${similarNote(it, b)}
     <div class="btn-row"><button class="btn btn-outline flex-1" onclick="switchInputStep(2)">옷 변경</button><button class="btn btn-dark flex-1" onclick="saveResult()">저장</button></div>`;
 }
@@ -582,7 +596,7 @@ function recCard(r) {
 function openAnalysis(id) {
   const r = S.records.find(x => x.id === id); if (!r) return;
   $('analysis-modal-body').innerHTML = `<p class="sub-info mb-10">${esc(r.cat)} · ${esc(r.pref)} 기준 · ${esc(r.date)} 저장</p><div class="wire-card text-center"><h4>${esc(r.name)}<br>추천 사이즈 ${esc(r.size)}</h4></div><h4>부위별 차이</h4>
-    <table class="wire-table"><thead><tr><th>부위</th><th>신체</th><th>옷</th><th>차이</th></tr></thead><tbody>${r.rows.map(x => `<tr><td>${esc(x[0])}</td><td>${x[1]}</td><td>${x[2]}</td><td class="bold">${sgn(x[2] - x[1])}</td></tr>`).join('')}</tbody></table>
+    <table class="wire-table"><thead><tr><th>부위</th><th>신체</th><th>옷</th><th>차이</th></tr></thead><tbody>${r.rows.map(x => `<tr><td>${esc(x[0])}</td><td>${x[1]}</td><td>${x[2]}</td><td>${diffHtml(x[2] - x[1])}</td></tr>`).join('')}</tbody></table>
     <div class="btn-row mt-15"><button class="btn btn-dark flex-1" onclick="reuseRecord(${id})">다시 분석</button><button class="btn btn-outline flex-1" onclick="delRec(${id})">저장 삭제</button></div>`;
   openModal('modal-saved-analysis');
 }
